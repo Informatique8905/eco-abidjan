@@ -42,7 +42,10 @@ export default function SignalerPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev => setPhotoPreview(ev.target?.result as string);
+    reader.onload = ev => {
+      setPhotoPreview(ev.target?.result as string);
+      setStep(1);
+    };
     reader.readAsDataURL(file);
     setPhotoFile(file);
   }
