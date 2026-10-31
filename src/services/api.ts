@@ -3,10 +3,19 @@
  * Fallback silencieux vers localStorage si l'API retourne 503 ou si le réseau est down.
  */
 
-const BASE =
-  typeof window !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
-    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')
-    : '';
+// En prod sur Vercel, pointe vers le backend Render.
+// En dev ou si NEXT_PUBLIC_API_URL est défini, utilise cette valeur.
+// Sur Render lui-même, utilise les routes relatives (BASE vide).
+const RENDER_URL = 'https://eco-abidjan.onrender.com';
+
+const BASE = (() => {
+  if (typeof window === 'undefined') return ''; // SSR → routes relatives
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '');
+  // Détecte si on tourne déjà sur Render → routes relatives
+  if (window.location.hostname.includes('onrender.com')) return '';
+  // Sinon (Vercel, localhost) → pointe vers Render
+  return RENDER_URL;
+})();
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T | null> {
   try {
