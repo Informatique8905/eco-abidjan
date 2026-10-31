@@ -1,0 +1,158 @@
+-- ============================================================
+-- EcoAbidjan – Script 01 : Création de la base et des tables
+-- ============================================================
+
+-- 1. Base de données et entrepôt
+CREATE DATABASE IF NOT EXISTS ECOABIDJAN;
+USE DATABASE ECOABIDJAN;
+
+CREATE WAREHOUSE IF NOT EXISTS ECOABIDJAN_WH
+  WAREHOUSE_SIZE = 'X-SMALL'
+  AUTO_SUSPEND = 60
+  AUTO_RESUME = TRUE
+  COMMENT = 'Entrepôt EcoAbidjan (hackathon)';
+
+USE WAREHOUSE ECOABIDJAN_WH;
+CREATE SCHEMA IF NOT EXISTS PUBLIC;
+USE SCHEMA PUBLIC;
+
+-- 2. Usagers
+CREATE TABLE IF NOT EXISTS USAGERS (
+  ID           VARCHAR(36)  PRIMARY KEY DEFAULT UUID_STRING(),
+  TELEPHONE    VARCHAR(20)  UNIQUE NOT NULL,
+  NOM          VARCHAR(100) NOT NULL,
+  PRENOM       VARCHAR(100) NOT NULL,
+  ROLE         VARCHAR(20)  NOT NULL CHECK (ROLE IN ('citizen','merchant','admin','relay')),
+  COMMUNE      VARCHAR(50)  NOT NULL,
+  QUARTIER     VARCHAR(100),
+  TAILLE_MENAGE INTEGER,
+  NOM_COMMERCE VARCHAR(200),
+  TYPE_ACTIVITE VARCHAR(100),
+  POINTS       INTEGER      DEFAULT 0,
+  KG_RECYCLES  FLOAT        DEFAULT 0,
+  NIVEAU       VARCHAR(20)  DEFAULT 'Graine',
+  CODE_PIN     VARCHAR(60)  NOT NULL,  -- hashé en production
+  CREE_LE      TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+-- 3. Signalements (avec géolocalisation)
+CREATE TABLE IF NOT EXISTS SIGNALEMENTS (
+  ID              VARCHAR(36)   PRIMARY KEY DEFAULT UUID_STRING(),
+  USAGER_ID       VARCHAR(36)   REFERENCES USAGERS(ID),
+  ANONYME         BOOLEAN       DEFAULT TRUE,
+  URL_PHOTO       VARCHAR(500),
+  LOCALISATION    GEOGRAPHY,                          -- colonne géographique Snowflake
+  COMMUNE         VARCHAR(50)   NOT NULL,
+  ADRESSE         VARCHAR(300),
+  ANALYSE_IA      VARIANT,                            -- JSON { objets, materiaux, volume_m3, … }
+  STATUT          VARCHAR(20)   DEFAULT 'reçu'   CHECK (STATUT IN ('reçu','en_cours','traité')),
+  PRIORITE        VARCHAR(10)   DEFAULT 'moyenne' CHECK (PRIORITE IN ('basse','moyenne','haute')),
+  EQUIPE_ASSIGNEE VARCHAR(100),
+  NUMERO_SUIVI    VARCHAR(30)   UNIQUE,
+  CREE_LE         TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+  MIS_A_JOUR_LE   TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+-- 4. Déclarations de recyclage
+CREATE TABLE IF NOT EXISTS DECLARATIONS (
+  ID             VARCHAR(36)  PRIMARY KEY DEFAULT UUID_STRING(),
+  USAGER_ID      VARCHAR(36)  REFERENCES USAGERS(ID),
+  ITEMS          VARIANT      NOT NULL,               -- JSON [{ type, poids_kg, trie }]
+  POIDS_TOTAL_KG FLOAT        NOT NULL,
+  VALEUR_TOTALE  FLOAT        NOT NULL,
+  POINTS_GAGNES  INTEGER      DEFAULT 0,
+  GROS_VOLUME    BOOLEAN      DEFAULT FALSE,
+  STATUT         VARCHAR(20)  DEFAULT 'en_attente' CHECK (STATUT IN ('en_attente','déposé','collecté','payé')),
+  MODE_PAIEMENT  VARCHAR(20),
+  ID_POINT_RELAIS VARCHAR(36),
+  QR_CODE        VARCHAR(20)  UNIQUE NOT NULL,
+  CRENEAU_COLLECTE VARCHAR(50),
+  COMMUNE        VARCHAR(50)  NOT NULL,
+  URL_PHOTO      VARCHAR(500),
+  TRI_VALIDE     BOOLEAN,
+  CREE_LE        TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+  SCANNE_LE      TIMESTAMP_NTZ
+);
+
+-- 5. Dépôts au point relais
+CREATE TABLE IF NOT EXISTS DEPOTS_RELAIS (
+  ID              VARCHAR(36)  PRIMARY KEY DEFAULT UUID_STRING(),
+  DECLARATION_ID  VARCHAR(36)  REFERENCES DECLARATIONS(ID),
+  USAGER_ID       VARCHAR(36)  REFERENCES USAGERS(ID),
+  POINT_RELAIS_ID VARCHAR(36),
+  POIDS_REEL_KG   FLOAT,
+  ITEMS_REELS     VARIANT,
+  POINTS_CREDITES INTEGER      DEFAULT 0,
+  EFFECTUE_LE     TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+-- 6. Transactions de points
+CREATE TABLE IF NOT EXISTS TRANSACTIONS_POINTS (
+  ID             VARCHAR(36)  PRIMARY KEY DEFAULT UUID_STRING(),
+  USAGER_ID      VARCHAR(36)  REFERENCES USAGERS(ID),
+  DECLARATION_ID VARCHAR(36)  REFERENCES DECLARATIONS(ID),
+  SIGNALEMENT_ID VARCHAR(36)  REFERENCES SIGNALEMENTS(ID),
+  DELTA          INTEGER      NOT NULL,
+  SOLDE_APRES    INTEGER      NOT NULL,
+  RAISON         VARCHAR(200),
+  CREE_LE        TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+-- 7. Tournées de collecte
+CREATE TABLE IF NOT EXISTS TOURNEES (
+  ID                  VARCHAR(36)  PRIMARY KEY DEFAULT UUID_STRING(),
+  DATE_TOURNEE        DATE         NOT NULL,
+  COMMUNES            VARIANT,                -- JSON array
+  ARRETS              VARIANT,                -- JSON array of stops
+  POIDS_TOTAL_KG      FLOAT        DEFAULT 0,
+  DISTANCE_TOTALE_KM  FLOAT        DEFAULT 0,
+  DUREE_ESTIMEE_MIN   INTEGER      DEFAULT 0,
+  COUT_ESTIME_FCFA    FLOAT        DEFAULT 0,
+  OPTIMISE_PAR_IA     BOOLEAN      DEFAULT TRUE,
+  STATUT              VARCHAR(20)  DEFAULT 'planifiée' CHECK (STATUT IN ('planifiée','en_cours','terminée')),
+  CREE_LE             TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+-- 8. Points relais
+CREATE TABLE IF NOT EXISTS POINTS_RELAIS (
+  ID              VARCHAR(36)  PRIMARY KEY DEFAULT UUID_STRING(),
+  NOM             VARCHAR(200) NOT NULL,
+  COMMUNE         VARCHAR(50)  NOT NULL,
+  ADRESSE         VARCHAR(300),
+  LOCALISATION    GEOGRAPHY,
+  CAPACITE_KG     FLOAT        DEFAULT 500,
+  CHARGE_ACTUELLE_KG FLOAT     DEFAULT 0,
+  HORAIRES        VARCHAR(100),
+  ACTIF           BOOLEAN      DEFAULT TRUE
+);
+
+-- 9. Grille de prix
+CREATE TABLE IF NOT EXISTS PRIX (
+  ID          INTEGER      PRIMARY KEY,
+  MATIERE     VARCHAR(50)  NOT NULL,
+  PRIX_TRIE   FLOAT        DEFAULT 0,
+  PRIX_NON_TRIE FLOAT      DEFAULT 0,
+  UNITE       VARCHAR(10)  DEFAULT 'F/kg',
+  MIS_A_JOUR_LE TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+-- Insertion de la grille de prix initiale
+INSERT INTO PRIX VALUES
+  (1, 'plastique_pet',  100, 40,  'F/kg'),
+  (2, 'plastique_pehd', 100, 40,  'F/kg'),
+  (3, 'plastique_pp',    75, 30,  'F/kg'),
+  (4, 'sachets',         50, 20,  'F/kg'),
+  (5, 'aluminium',      300, 120, 'F/kg'),
+  (6, 'carton',          50, 0,   'F/kg'),
+  (7, 'papier',          50, 0,   'F/kg');
+
+-- 10. Stage interne pour les photos (chiffrement SNOWFLAKE_SSE requis pour Cortex)
+CREATE STAGE IF NOT EXISTS PHOTOS_STAGE
+  ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
+  DIRECTORY = (ENABLE = TRUE)
+  COMMENT = 'Stage pour les photos de dépôts sauvages – chiffrement SSE pour analyse Cortex';
+
+-- Index sur les colonnes fréquemment filtrées
+CREATE INDEX IF NOT EXISTS idx_signalements_commune ON SIGNALEMENTS (COMMUNE);
+CREATE INDEX IF NOT EXISTS idx_signalements_statut ON SIGNALEMENTS (STATUT);
+CREATE INDEX IF NOT EXISTS idx_declarations_usager ON DECLARATIONS (USAGER_ID);

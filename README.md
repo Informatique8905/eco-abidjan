@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EcoAbidjan
 
-## Getting Started
+Signalement des dépôts sauvages et valorisation des déchets recyclables à Abidjan, propulsé par l'IA et Snowflake.
 
-First, run the development server:
+**Hack for Humanity – Abidjan 2026 · Sujet 1**
+
+## Lancement rapide
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Comptes de démo (code PIN : 1234)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Rôle | Numéro |
+|------|--------|
+| Ménage – Aminata Koné (Abobo) | +225 07 00 00 00 01 |
+| Commerçant – Ibrahim Bamba (Yopougon) | +225 07 00 00 00 02 |
+| Point relais (Cocody) | +225 07 00 00 00 03 |
+| Administrateur | +225 07 00 00 00 04 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 3 scénarios de démo
 
-## Learn More
+**Scénario 1 – Signalement** : `/signaler` → photo → analyse IA → notification admin (`/admin/signalements`)
 
-To learn more about Next.js, take a look at the following resources:
+**Scénario 2 – Commerçant gros volume** : connexion u002 → `/recycler` → déclarer > 50 kg → rémunération directe → visible dans `/admin/collectes`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Scénario 3 – Ménage petit volume** : connexion u001 → `/recycler` → déclarer < 50 kg → QR code → `/relais` → scan ECO-4F7K2 → solde avant/après visible
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Snowflake
 
-## Deploy on Vercel
+```bash
+# Dans Snowflake Worksheets, exécuter dans l'ordre :
+snowflake/01_tables.sql       # Schéma + stage SSE pour photos
+snowflake/02_donnees_synthetiques.sql  # 500 ménages + 200 commerçants
+snowflake/03_analyse_photos.sql        # AI_COMPLETE vision + AI_CLASSIFY
+snowflake/04_indicateurs.sql           # 7 vues pour le tableau de bord
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Créer un compte : **mlh.link/snowflake-signup** (accès gratuit 120 jours)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Variables d'environnement
+
+```bash
+cp .env.example .env.local
+# Remplir les credentials Snowflake (optionnel – démo fonctionne sans)
+```
+
+## Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client["Next.js 16 · App Router · TypeScript"]
+        pages["Pages usager\n/ /signaler /recycler\n/challenges /historique /relais"]
+        admin["Pages admin\n/admin/tableau-de-bord\n/admin/signalements /admin/collectes\n/admin/simulation /admin/parametres"]
+        services["src/services/\nstorage.ts (localStorage)\nia.ts (analyse + routage)\nsimulation.ts (calculs)"]
+    end
+    subgraph Snowflake["Snowflake (optionnel)"]
+        tables["Tables GEOGRAPHY\nUSAGERS SIGNALEMENTS\nDECLARATIONS TOURNEES"]
+        cortex["Cortex AI\nAI_COMPLETE (vision)\nAI_CLASSIFY"]
+        views["7 vues indicateurs\nV_DASHBOARD etc."]
+    end
+    pages & admin --> services
+    services -.->|API routes| tables
+    tables --> cortex --> views
+```
+
+## Stack
+
+- Next.js 16 + TypeScript + Tailwind CSS 4
+- Lucide React (icônes), Recharts (graphiques), Leaflet/OSM (carte)
+- qrcode.react (QR codes)
+- Snowflake SDK (API routes serveur uniquement)
+- Données : localStorage prérempli avec seed.ts

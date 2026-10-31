@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #FFFFFF;
+  --fg: #16160F;
+  --fg2: #5C5C48;
+  --green: #2A7A3A;
+  --green-light: #E8F5EA;
+  --orange: #E05A1A;
+  --border: #DEDED0;
+  color-scheme: light;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-primary: var(--green);
+  --font-display: "Baloo 2", system-ui, sans-serif;
+  --font-sans: "Nunito", system-ui, sans-serif;
+  --shadow-glow: 0 12px 40px -8px color-mix(in srgb, #2A7A3A 50%, transparent);
+  --animate-wiggle: wiggle 2.4s ease-in-out infinite;
+  @keyframes wiggle {
+    0%, 70%, 100% { transform: rotate(0) scale(1); }
+    75% { transform: rotate(-14deg) scale(1.1); }
+    82% { transform: rotate(12deg) scale(1.1); }
+    89% { transform: rotate(-8deg); }
+    95% { transform: rotate(4deg); }
   }
 }
 
+* { box-sizing: border-box; }
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Nunito", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Display font utility */
+.font-display { font-family: "Baloo 2", system-ui, sans-serif; }
+
+/* Glow shadow on primary buttons */
+.shadow-glow { box-shadow: var(--shadow-glow); }
+
+/* Wiggle animation */
+.animate-wiggle { animation: var(--animate-wiggle); }
+
+/* Safe area for mobile bottom nav */
+.pb-safe { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+.mb-nav { margin-bottom: 4.5rem; }
+
+/* Skeleton animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f0e8 25%, #e8e8e0 50%, #f0f0e8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Slide in animation */
+@keyframes slide-in-from-bottom-2 {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-in { animation-fill-mode: both; }
+.slide-in-from-bottom-2 { animation-name: slide-in-from-bottom-2; animation-duration: 200ms; }
+
+/* Leaflet overrides */
+.leaflet-container { border-radius: 12px; }
+
+/* Ping animation for hero CTA */
+@keyframes ping-slow {
+  75%, 100% { transform: scale(1.4); opacity: 0; }
+}
+.animate-ping-slow { animation: ping-slow 2s cubic-bezier(0,0,0.2,1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-wiggle, .animate-ping-slow { animation: none; }
 }

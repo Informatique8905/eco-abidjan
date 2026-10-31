@@ -1,0 +1,14 @@
+{
+  "name": "EcoAbidjan",
+  "short_name": "EcoAbidjan",
+  "description": "Signalez les dépôts sauvages et valorisez vos déchets recyclables à Abidjan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2A7A3A",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
