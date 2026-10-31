@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Leaf, Bell, Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getCurrentUser, logout, getNotifications, markAllRead } from '@/src/services/storage';
 import type { User as UserType, Notification } from '@/src/types';
@@ -47,7 +46,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-8 h-8 bg-[#2A7A3A] rounded-lg flex items-center justify-center">
-            <Leaf className="w-5 h-5 text-white" strokeWidth={2} />
+            <span className="text-lg">🌿</span>
           </div>
           <span className="font-bold text-lg text-[#16160F]">EcoAbidjan</span>
         </Link>
@@ -79,14 +78,14 @@ export default function Header() {
                 onClick={() => { setNotifOpen(p => !p); markAllRead(); setNotifs(n => n.map(x => ({ ...x, read: true }))); }}
                 aria-label={`${unread} notification${unread !== 1 ? 's' : ''} non lue${unread !== 1 ? 's' : ''}`}
               >
-                <Bell className="w-5 h-5" strokeWidth={2} />
+                <span className="text-lg">🔔</span>
                 {unread > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#E05A1A] rounded-full text-white text-[10px] flex items-center justify-center font-bold">{unread > 9 ? '9+' : unread}</span>}
               </button>
               {notifOpen && (
                 <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-[#DEDED0] rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
                   <div className="p-3 border-b border-[#DEDED0] flex items-center justify-between">
                     <span className="font-semibold text-sm">Notifications</span>
-                    <button onClick={() => setNotifOpen(false)} className="text-[#5C5C48] hover:text-[#16160F]"><X className="w-4 h-4" /></button>
+                    <button onClick={() => setNotifOpen(false)} className="text-[#5C5C48] hover:text-[#16160F]"><span className="text-base">✕</span></button>
                   </div>
                   {notifs.length === 0 ? (
                     <p className="p-4 text-sm text-[#5C5C48] text-center">Aucune notification</p>
@@ -114,12 +113,12 @@ export default function Header() {
                   {user.firstName?.[0]}{user.name?.[0]}
                 </div>
                 <span className="hidden md:block">{user.firstName} {user.name}</span>
-                <ChevronDown className="w-4 h-4 text-[#5C5C48]" />
+                <span className="text-xs text-[#5C5C48]">▾</span>
               </button>
               {userMenuOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#DEDED0] rounded-xl shadow-lg z-50">
                   <Link href="/profil" className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                    <User className="w-4 h-4" /> Mon profil
+                    <span>👤</span> Mon profil
                   </Link>
                   {user.role === 'admin' && (
                     <Link href="/admin/tableau-de-bord" className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-50 border-t border-[#DEDED0]" onClick={() => setUserMenuOpen(false)}>
@@ -127,7 +126,7 @@ export default function Header() {
                     </Link>
                   )}
                   <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-50 w-full text-left border-t border-[#DEDED0] text-[#E05A1A]">
-                    <LogOut className="w-4 h-4" /> Se déconnecter
+                    <span>🚪</span> Se déconnecter
                   </button>
                 </div>
               )}
@@ -145,7 +144,7 @@ export default function Header() {
             aria-label="Menu"
             aria-expanded={menuOpen}
           >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {menuOpen ? <span className="text-xl">✕</span> : <span className="text-xl">☰</span>}
           </button>
         </div>
       </div>

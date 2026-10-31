@@ -1,15 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, AlertTriangle, RefreshCw, Trophy, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const TABS = [
-  { label: 'Accueil', href: '/', icon: Home },
-  { label: 'Signaler', href: '/signaler', icon: AlertTriangle },
-  { label: 'Recycler', href: '/recycler', icon: RefreshCw },
-  { label: 'Challenges', href: '/challenges', icon: Trophy },
-  { label: 'Profil', href: '/profil', icon: User },
+  { label: 'Accueil',    href: '/',           emoji: '🏠' },
+  { label: 'Signaler',   href: '/signaler',   emoji: '📸' },
+  { label: 'Recycler',   href: '/recycler',   emoji: '♻️' },
+  { label: 'Challenges', href: '/challenges', emoji: '🏆' },
+  { label: 'Profil',     href: '/profil',     emoji: '👤' },
 ];
 
 export default function BottomNav() {
@@ -31,7 +30,7 @@ export default function BottomNav() {
               })}
               aria-current={active ? 'page' : undefined}
             >
-              <tab.icon className="w-5 h-5" strokeWidth={active ? 2.5 : 2} />
+              <span className={cn('text-xl leading-none', { 'drop-shadow-sm': active })}>{tab.emoji}</span>
               <span className="text-[10px] font-medium">{tab.label}</span>
             </Link>
           );

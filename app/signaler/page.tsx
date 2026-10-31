@@ -1,7 +1,6 @@
 'use client';
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, Upload, MapPin, User, AlertTriangle, CheckCircle, Loader, ChevronRight, ChevronLeft, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -154,7 +153,7 @@ export default function SignalerPage() {
 
               <button type="button" onClick={() => fileRef.current?.click()}
                 className="flex items-center gap-2 px-6 py-3 rounded-2xl border-2 border-[#DEDED0] hover:border-[#2A7A3A] hover:bg-[#E8F5EA]/30 transition-colors text-sm font-semibold text-[#5C5C48]">
-                <Upload className="w-5 h-5" strokeWidth={1.5} />
+                <span className="text-xl">📤</span>
                 Importer depuis la galerie
               </button>
             </div>
@@ -215,7 +214,7 @@ export default function SignalerPage() {
             </label>
           </div>
           <Button onClick={requestGeo} variant="outline" className="w-full mb-4" disabled={geoLoading}>
-            <MapPin className="w-4 h-4 mr-2" />
+            <span className="mr-2">📍</span>
             {geoLoading ? 'Localisation...' : 'Utiliser ma position GPS'}
           </Button>
           {lat && <p className="text-xs text-[#2A7A3A] mb-3">Position obtenue {geoAccuracy && `(précision : ±${geoAccuracy} m)`}</p>}
@@ -264,7 +263,7 @@ export default function SignalerPage() {
           <h2 className="text-lg font-semibold mb-4">4. Analyse par l'IA</h2>
           {analyzing ? (
             <div className="flex flex-col items-center py-8 gap-3">
-              <Loader className="w-8 h-8 text-[#2A7A3A] animate-spin" />
+              <span className="text-4xl animate-spin inline-block">⏳</span>
               <p className="text-sm text-[#5C5C48]">Analyse de la photo en cours…</p>
               <p className="text-xs text-[#5C5C48]/70">Snowflake Cortex · IA multimodale</p>
             </div>
@@ -296,7 +295,7 @@ export default function SignalerPage() {
               <p className="text-xs text-[#5C5C48]">Vous pouvez corriger les informations si nécessaire.</p>
             </div>
           ) : (
-            <Button onClick={runAnalysis} className="w-full"><Eye className="w-4 h-4 mr-2" />Lancer l'analyse IA</Button>
+            <Button onClick={runAnalysis} className="w-full"><span className="mr-2">👁️</span>Lancer l'analyse IA</Button>
           )}
         </Card>
       )}
@@ -327,19 +326,19 @@ export default function SignalerPage() {
       {step < STEPS.length - 1 && (
         <div className="flex justify-between mt-6 gap-3">
           {step > 0 ? (
-            <Button variant="outline" onClick={() => setStep(s => s - 1)}><ChevronLeft className="w-4 h-4 mr-1" /> Retour</Button>
+            <Button variant="outline" onClick={() => setStep(s => s - 1)}><span className="mr-1">‹</span> Retour</Button>
           ) : <div />}
           {step === 3 && analysis ? (
             <Button onClick={submit} className="flex-1">
-              <CheckCircle className="w-4 h-4 mr-2" /> Envoyer le signalement
+              <span className="mr-2">✅</span> Envoyer le signalement
             </Button>
           ) : step !== 3 ? (
             <Button onClick={nextStep} className="flex-1">
-              Continuer <ChevronRight className="w-4 h-4 ml-1" />
+              Continuer <span className="ml-1">›</span>
             </Button>
           ) : (
             <Button onClick={runAnalysis} className="flex-1" disabled={analyzing}>
-              {analyzing ? <Loader className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {analyzing ? <span className="mr-2 animate-spin inline-block">⏳</span> : null}
               {analyzing ? 'Analyse…' : 'Analyser la photo'}
             </Button>
           )}

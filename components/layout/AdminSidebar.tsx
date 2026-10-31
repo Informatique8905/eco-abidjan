@@ -1,30 +1,21 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, AlertTriangle, Map, Truck, Recycle, Users, MapPin, BarChart3, Settings, LogOut, Leaf, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logout, getNotifications } from '@/src/services/storage';
 import { useEffect, useState } from 'react';
 
 const NAV = [
-  { label: 'Tableau de bord', href: '/admin/tableau-de-bord', icon: LayoutDashboard },
-  { label: 'Signalements',    href: '/admin/signalements',    icon: AlertTriangle },
-  { label: 'Carte',           href: '/admin/carte',           icon: Map },
-  { label: 'Collectes',       href: '/admin/collectes',       icon: Truck },
-  { label: 'Recyclage',       href: '/admin/recyclage',       icon: Recycle },
-  { label: 'Usagers',         href: '/admin/usagers',         icon: Users },
-  { label: 'Points relais',   href: '/admin/points-relais',   icon: MapPin },
-  { label: 'Simulation',      href: '/admin/simulation',      icon: BarChart3 },
-  { label: 'Paramètres',      href: '/admin/parametres',      icon: Settings },
-];
-
-// Navigation mobile : les 5 plus importants
-const MOBILE_NAV = [
-  { label: 'Accueil',       href: '/admin/tableau-de-bord', icon: LayoutDashboard },
-  { label: 'Signalements',  href: '/admin/signalements',    icon: AlertTriangle },
-  { label: 'Carte',         href: '/admin/carte',           icon: Map },
-  { label: 'Collectes',     href: '/admin/collectes',       icon: Truck },
-  { label: 'Plus',          href: '#',                      icon: Menu, isMore: true },
+  { label: 'Tableau de bord', href: '/admin/tableau-de-bord', emoji: '🏠' },
+  { label: 'Signalements',    href: '/admin/signalements',    emoji: '⚠️' },
+  { label: 'Carte',           href: '/admin/carte',           emoji: '🗺️' },
+  { label: 'Collectes',       href: '/admin/collectes',       emoji: '🚚' },
+  { label: 'Recyclage',       href: '/admin/recyclage',       emoji: '♻️' },
+  { label: 'Usagers',         href: '/admin/usagers',         emoji: '👥' },
+  { label: 'Points relais',   href: '/admin/points-relais',   emoji: '📍' },
+  { label: 'Simulation',      href: '/admin/simulation',      emoji: '📊' },
+  { label: 'Paramètres',      href: '/admin/parametres',      emoji: '⚙️' },
 ];
 
 export default function AdminSidebar() {
@@ -38,7 +29,7 @@ export default function AdminSidebar() {
     setDrawer(false); // ferme le drawer sur navigation
   }, [pathname]);
 
-  const NavLink = ({ item, onClick }: { item: typeof NAV[0]; onClick?: () => void }) => {
+  const NavLink = ({ item, onClick }: { item: { label: string; href: string; emoji: string; isMore?: boolean }; onClick?: () => void }) => {
     const active = pathname === item.href;
     return (
       <Link href={item.href} onClick={onClick}
@@ -47,7 +38,7 @@ export default function AdminSidebar() {
           'text-white/70 hover:bg-white/10 hover:text-white': !active,
         })}
         aria-current={active ? 'page' : undefined}>
-        <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
+        <span className="text-base flex-shrink-0">{item.emoji}</span>
         {item.label}
         {item.label === 'Signalements' && unread > 0 && (
           <span className="ml-auto w-5 h-5 bg-[#E05A1A] rounded-full text-white text-[10px] flex items-center justify-center font-bold">{unread}</span>
@@ -63,7 +54,7 @@ export default function AdminSidebar() {
         <div className="p-5 border-b border-white/10">
           <Link href="/admin/tableau-de-bord" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#2A7A3A] rounded-lg flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-white" strokeWidth={2} />
+              <span className="text-lg">🌿</span>
             </div>
             <div>
               <div className="font-bold text-sm">EcoAbidjan</div>
@@ -82,7 +73,7 @@ export default function AdminSidebar() {
           </Link>
           <button onClick={() => { logout(); router.push('/connexion'); }}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white w-full">
-            <LogOut className="w-4 h-4" /> Se déconnecter
+            <span>🚪</span> Se déconnecter
           </button>
         </div>
       </aside>
@@ -91,7 +82,7 @@ export default function AdminSidebar() {
       <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0A2010] text-white flex items-center justify-between px-4 h-14 border-b border-white/10">
         <Link href="/admin/tableau-de-bord" className="flex items-center gap-2">
           <div className="w-7 h-7 bg-[#2A7A3A] rounded-lg flex items-center justify-center">
-            <Leaf className="w-4 h-4 text-white" strokeWidth={2} />
+            <span className="text-lg">🌿</span>
           </div>
           <span className="font-bold text-sm">Admin EcoAbidjan</span>
           {unread > 0 && <span className="w-5 h-5 bg-[#E05A1A] rounded-full text-white text-[10px] flex items-center justify-center font-bold">{unread}</span>}
@@ -109,7 +100,7 @@ export default function AdminSidebar() {
             <div className="p-4 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 bg-[#2A7A3A] rounded-lg flex items-center justify-center">
-                  <Leaf className="w-4 h-4 text-white" strokeWidth={2} />
+                  <span className="text-lg">🌿</span>
                 </div>
                 <span className="font-bold text-sm">EcoAbidjan Admin</span>
               </div>
@@ -124,7 +115,7 @@ export default function AdminSidebar() {
               </Link>
               <button onClick={() => { logout(); router.push('/connexion'); }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white w-full">
-                <LogOut className="w-4 h-4" /> Se déconnecter
+                <span>🚪</span> Se déconnecter
               </button>
             </div>
           </aside>

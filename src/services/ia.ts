@@ -27,8 +27,24 @@ const SIMULATED_ANALYSES: WasteAnalysis[] = [
   },
 ];
 
-export async function analyzerPhoto(_image: string): Promise<WasteAnalysis> {
-  // Mode démo : analyse simulée réaliste
+export async function analyzerPhoto(imageBase64: string, context?: string): Promise<WasteAnalysis> {
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64, context }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      // Validate required fields
+      if (data.materiaux && data.risque && data.priorite && data.resume) {
+        return data as WasteAnalysis;
+      }
+    }
+  } catch {
+    // fall through to simulation
+  }
+  // Fallback simulation
   await new Promise(r => setTimeout(r, 1500));
   return SIMULATED_ANALYSES[Math.floor(Math.random() * SIMULATED_ANALYSES.length)];
 }
