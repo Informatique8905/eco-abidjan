@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getDashboardStats, getNotifications, formatFCFA, resetStore } from '@/src/services/storage';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Button } from '@/components/ui/button';
+import { api } from '@/src/services/api';
 
 const COLORS = ['#2A7A3A', '#3A9A4A', '#5ABD6A', '#7ACD8A', '#9ADD9A', '#BAEDB0'];
 
@@ -13,8 +14,22 @@ export default function DashboardPage() {
   const [notifCount, setNotifCount] = useState(0);
 
   useEffect(() => {
-    setStats(getDashboardStats());
+    const local = getDashboardStats();
+    setStats(local);
     setNotifCount(getNotifications().filter(n => !n.read).length);
+
+    // Tente de récupérer les KPIs Snowflake en arrière-plan
+    api.getKpis().then(kpis => {
+      if (kpis?.summary) {
+        setStats(prev => prev ? {
+          ...prev,
+          totalWeightKg: kpis.summary.TOTAL_WEIGHT_KG ?? prev.totalWeightKg,
+          totalRemunerationFCFA: kpis.summary.TOTAL_REMUNERATION_FCFA ?? prev.totalRemunerationFCFA,
+          totalReports: kpis.summary.TOTAL_REPORTS ?? prev.totalReports,
+          treatedReports: kpis.summary.TREATED_REPORTS ?? prev.treatedReports,
+        } : prev);
+      }
+    }).catch(() => {});
   }, []);
 
   if (!stats) return <div className="animate-pulse space-y-4"><div className="skeleton h-32 rounded-xl" /><div className="skeleton h-64 rounded-xl" /></div>;

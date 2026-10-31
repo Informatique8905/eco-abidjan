@@ -11,6 +11,7 @@ import { getCurrentUser, addReport } from '@/src/services/storage';
 import { analyzerPhoto } from '@/src/services/ia';
 import type { WasteAnalysis, Commune } from '@/src/types';
 import { COMMUNE_CENTERS } from '@/src/data/seed';
+import { api } from '@/src/services/api';
 
 const COMMUNES: Commune[] = ['Abobo','Adjamé','Attécoubé','Cocody','Koumassi','Marcory','Plateau','Port-Bouët','Treichville','Yopougon','Anyama','Bingerville','Songon'];
 const STEPS = ['Photo', 'Lieu', 'Identité', 'Analyse IA', 'Envoi'];
@@ -87,6 +88,7 @@ export default function SignalerPage() {
   }
 
   function submit() {
+    // 1. Sauvegarde localStorage (toujours, immédiat)
     const report = addReport({
       userId: currentUser?.id,
       anonymous: anonymous || !currentUser,
@@ -102,6 +104,17 @@ export default function SignalerPage() {
     setTrackingNumber(report.trackingNumber);
     setStep(STEPS.length - 1);
     toast('Signalement envoyé !', 'success');
+
+    // 2. Sync backend en arrière-plan (best-effort, ne bloque pas l'UX)
+    if (photoPreview && lat && lng) {
+      api.createReport({
+        userId: currentUser?.id,
+        lat,
+        lon: lng,
+        imageBase64: photoPreview,
+        mimeType: photoFile?.type,
+      }).catch(() => {}); // silencieux si Snowflake absent
+    }
   }
 
   const progress = ((step + 1) / STEPS.length) * 100;

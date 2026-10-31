@@ -43,3 +43,7 @@ services:
         value: ECOABIDJAN
       - key: SNOWFLAKE_SCHEMA
         value: CORE
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: NEXT_PUBLIC_VERCEL_URL
+        sync: false

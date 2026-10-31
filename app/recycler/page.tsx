@@ -12,6 +12,7 @@ import {
 } from '@/src/services/storage';
 import { WASTE_LABELS } from '@/src/data/seed';
 import type { WasteItem, WasteType } from '@/src/types';
+import { api } from '@/src/services/api';
 
 const MATS: { type: WasteType; emoji: string; label: string }[] = [
   { type: 'carton',          emoji: '📦', label: 'Carton' },
@@ -213,6 +214,15 @@ export default function RecyclerPage() {
       setDone({ kind: 'points', points: calc.points, qrCode: qr, relayName: nearestRelay?.name ?? 'Point relais' });
     }
     toast('Déclaration enregistrée !', 'success');
+
+    // Sync backend best-effort
+    if (user) {
+      api.createDeclaration({
+        userId: user.id,
+        material: items.map(i => i.type).join(',').toUpperCase(),
+        weightKg: totalKg,
+      }).catch(() => {});
+    }
   }
 
   return (
