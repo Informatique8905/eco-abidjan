@@ -5,7 +5,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: npm ci && npm run build
-    startCommand: npm run start
+    startCommand: node scripts/snowflake-init.mjs && npm run start
     healthCheckPath: /api/config
     autoDeploy: true
     envVars:
