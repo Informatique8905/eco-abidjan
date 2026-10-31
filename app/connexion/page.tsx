@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,10 @@ const DEMO_ACCOUNTS = [
 ];
 
 export default function ConnexionPage() {
+  return <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-4xl animate-wiggle">🌿</div></div>}><ConnexionForm /></Suspense>;
+}
+
+function ConnexionForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const { toast }    = useToast();
