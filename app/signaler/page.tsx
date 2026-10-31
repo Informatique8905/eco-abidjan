@@ -354,18 +354,15 @@ export default function SignalerPage() {
           {step > 0 ? (
             <Button variant="outline" onClick={() => setStep(s => s - 1)}><span className="mr-1">‹</span> Retour</Button>
           ) : <div />}
-          {step === 3 && analysis ? (
-            <Button onClick={submit} className="flex-1">
-              <span className="mr-2">✅</span> Envoyer le signalement
-            </Button>
-          ) : step !== 3 ? (
-            <Button onClick={nextStep} className="flex-1">
-              Continuer <span className="ml-1">›</span>
+          {step === 3 ? (
+            <Button onClick={submit} className="flex-1" disabled={analyzing}>
+              {analyzing
+                ? <><span className="mr-2 animate-spin inline-block">⏳</span> Analyse en cours…</>
+                : <><span className="mr-2">✅</span> Envoyer le signalement</>}
             </Button>
           ) : (
-            <Button onClick={runAnalysis} className="flex-1" disabled={analyzing}>
-              {analyzing ? <span className="mr-2 animate-spin inline-block">⏳</span> : null}
-              {analyzing ? 'Analyse…' : 'Analyser la photo'}
+            <Button onClick={nextStep} className="flex-1">
+              Continuer <span className="ml-1">›</span>
             </Button>
           )}
         </div>
