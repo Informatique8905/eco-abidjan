@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,12 +78,22 @@ export default function SignalerPage() {
     setAnalyzing(false);
   }
 
+  // Lance l'analyse automatiquement dès qu'on arrive à l'étape IA
+  useEffect(() => {
+    if (step === 3 && !analysis && !analyzing) runAnalysis();
+  }, [step]);
+
   function nextStep() {
     if (step === 0 && !photoPreview) { toast('Veuillez fournir une photo.', 'error'); return; }
-    if (step === 1 && !lat) { toast('Veuillez indiquer votre position ou votre commune.', 'error'); return; }
-    if (step === 2) { /* Identity optional */ }
+    if (step === 1 && !lat) {
+      // Commune sélectionnée → utilise son centre automatiquement
+      const center = COMMUNE_CENTERS[commune];
+      setLat(center[0] + (Math.random() - 0.5) * 0.01);
+      setLng(center[1] + (Math.random() - 0.5) * 0.01);
+    }
     if (step === 3 && !analysis) { runAnalysis(); return; }
     if (step < STEPS.length - 1) setStep(s => s + 1);
+    // Lance l'analyse dès qu'on arrive à l'étape IA
     if (step === 2 && !analysis) runAnalysis();
   }
 
