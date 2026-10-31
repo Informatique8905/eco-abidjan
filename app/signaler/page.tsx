@@ -162,6 +162,44 @@ export default function SignalerPage() {
           <input id="capture" type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
           <p className="text-xs text-[#5C5C48] text-center">Photo compressée automatiquement · Signalement anonyme par défaut</p>
+
+          {/* Canaux messagerie */}
+          <div className="mt-6 rounded-2xl border border-[#DEDED0] bg-white p-4">
+            <p className="text-xs font-bold text-[#5C5C48] uppercase tracking-wide mb-3 text-center">Ou signalez directement via</p>
+            <div className="grid grid-cols-3 gap-3">
+              <a href="https://wa.me/2250700000099?text=Je+veux+signaler+un+dépôt+sauvage+à+Abidjan"
+                target="_blank" rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-transparent hover:border-[#25D366] hover:bg-[#25D366]/5 active:scale-95 transition-all">
+                <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="#25D366"/>
+                  <path d="M24 8C15.163 8 8 15.163 8 24c0 2.837.745 5.5 2.047 7.81L8 40l8.393-2.008A15.935 15.935 0 0 0 24 40c8.837 0 16-7.163 16-16S32.837 8 24 8Z" fill="white"/>
+                  <path d="M31.5 27.4c-.4-.2-2.4-1.2-2.8-1.3-.4-.1-.7-.2-1 .2-.3.4-1.1 1.3-1.3 1.6-.2.3-.5.3-.9.1-.4-.2-1.7-.6-3.2-2-.8-.7-1.3-1.6-1.5-1.9-.2-.4 0-.6.1-.8l.6-.7c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6-.1-.2-1-2.4-1.4-3.3-.3-.8-.7-.7-.9-.7h-.8c-.3 0-.7.1-1 .5-.4.4-1.4 1.3-1.4 3.2s1.4 3.7 1.6 4c.2.3 2.7 4.1 6.6 5.7 3.9 1.7 3.9 1.1 4.6 1 .7-.1 2.4-.9 2.7-1.9.3-.9.3-1.7.2-1.9-.1-.1-.4-.2-.8-.4Z" fill="#25D366"/>
+                </svg>
+                <span className="text-xs font-bold text-[#16160F]">WhatsApp</span>
+              </a>
+
+              <a href="https://t.me/EcoAbidjanBot"
+                target="_blank" rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-transparent hover:border-[#2AABEE] hover:bg-[#2AABEE]/5 active:scale-95 transition-all">
+                <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="#2AABEE"/>
+                  <path d="M9.5 23.5 38 12l-5 26-9-8-5 4 1-8 15-13-17 10-8-2Z" fill="white"/>
+                </svg>
+                <span className="text-xs font-bold text-[#16160F]">Telegram</span>
+              </a>
+
+              <a href="https://snapchat.com/add/ecoabidjan"
+                target="_blank" rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 border-transparent hover:border-[#FFFC00] hover:bg-[#FFFC00]/10 active:scale-95 transition-all">
+                <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="#FFFC00"/>
+                  <path d="M24 9c-3.3 0-6.7 2.1-7.6 6-.3 1.4-.3 2.8-.3 4.2-.7.1-1.4-.1-2-.4-.3-.1-.5-.1-.6.2-.1.5.3.8.7 1 1 .4 1.7.7 1.9 1.5.1.3-.1.6-.3.9-1.1 1.6-2.7 2.8-4.4 3.3-.3.1-.5.3-.4.6.1.4.6.7 1.3.9.4.1.7.2.8.5.1.3 0 .5-.2.8-.3.3-.7.5-.7.9 0 .5.5.8 1.1.8.4 0 .8-.1 1.2-.1 1 0 1.9.4 2.8 1.1 1.3 1 2.5 1.5 4 1.5s2.7-.5 4-1.5c.9-.7 1.8-1.1 2.8-1.1.4 0 .8.1 1.2.1.6 0 1.1-.3 1.1-.8 0-.4-.4-.6-.7-.9-.2-.3-.3-.5-.2-.8.1-.3.4-.4.8-.5.7-.2 1.2-.5 1.3-.9.1-.3-.1-.5-.4-.6-1.7-.5-3.3-1.7-4.4-3.3-.2-.3-.4-.6-.3-.9.2-.8.9-1.1 1.9-1.5.4-.2.8-.5.7-1-.1-.3-.3-.3-.6-.2-.6.3-1.3.5-2 .4 0-1.4 0-2.8-.3-4.2C30.7 11.1 27.3 9 24 9Z" fill="#16160F"/>
+                </svg>
+                <span className="text-xs font-bold text-[#16160F]">Snapchat</span>
+              </a>
+            </div>
+            <p className="text-[10px] text-[#5C5C48] text-center mt-2">Notre chatbot reçoit vos photos 24h/24 et les transmet automatiquement</p>
+          </div>
         </div>
       )}
 

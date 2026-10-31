@@ -90,6 +90,43 @@ export default function HomePage() {
             <span className="text-xs text-[#5C5C48]">Soyez rémunéré(e)</span>
           </Link>
         </div>
+
+        {/* Canaux messagerie */}
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <p className="text-xs font-bold text-[#5C5C48] uppercase tracking-wide">Ou signalez via votre messagerie</p>
+          <div className="flex gap-3">
+            <a href="https://wa.me/2250700000099?text=Je+veux+signaler+un+dépôt+sauvage+à+Abidjan"
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border-2 border-[#DEDED0] hover:border-[#25D366] hover:bg-[#25D366]/5 active:scale-95 transition-all">
+              <svg viewBox="0 0 32 32" className="w-6 h-6 flex-shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="8" fill="#25D366"/>
+                <path d="M16 4C9.4 4 4 9.4 4 16c0 2 .5 3.9 1.4 5.5L4 28l6.7-1.7A11.9 11.9 0 0 0 16 28c6.6 0 12-5.4 12-12S22.6 4 16 4Z" fill="white"/>
+                <path d="M21.3 19c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1s-.8.9-1 1.1c-.2.2-.3.2-.6 0-.3-.1-1.2-.4-2.2-1.4-.6-.5-.9-1.1-1-1.3-.1-.3 0-.4.1-.5l.4-.5c.1-.1.2-.3.2-.4 0-.1 0-.3-.1-.4-.1-.2-.7-1.7-1-2.3-.2-.6-.5-.5-.6-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.3s1 2.6 1.1 2.8c.1.2 1.9 2.9 4.6 4 2.8 1.1 2.8.8 3.3.7.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.1-1.3 0-.2-.2-.3-.5-.4Z" fill="#25D366"/>
+              </svg>
+              <span className="text-sm font-bold text-[#16160F]">WhatsApp</span>
+            </a>
+
+            <a href="https://t.me/EcoAbidjanBot"
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border-2 border-[#DEDED0] hover:border-[#2AABEE] hover:bg-[#2AABEE]/5 active:scale-95 transition-all">
+              <svg viewBox="0 0 32 32" className="w-6 h-6 flex-shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="8" fill="#2AABEE"/>
+                <path d="M6.5 15.7 26 8l-3.4 17.4L16.5 20 13 23l.7-5.3L24 9.3 7.2 18.7l-.7-3Z" fill="white"/>
+              </svg>
+              <span className="text-sm font-bold text-[#16160F]">Telegram</span>
+            </a>
+
+            <a href="https://snapchat.com/add/ecoabidjan"
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border-2 border-[#DEDED0] hover:border-[#FFFC00] hover:bg-[#FFFC00]/10 active:scale-95 transition-all">
+              <svg viewBox="0 0 32 32" className="w-6 h-6 flex-shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="8" fill="#FFFC00"/>
+                <path d="M16 5c-2.3 0-4.6 1.5-5.2 4.2-.2.9-.2 1.8-.2 2.7-.5.1-.9-.1-1.3-.3-.2-.1-.4 0-.5.2-.1.4.2.6.5.7.7.3 1.2.5 1.3 1 .1.2-.1.4-.2.6-.7 1.1-1.9 2-3.1 2.4-.2.1-.3.2-.3.4.1.3.4.5.9.6.2.1.5.1.6.3.1.2 0 .3-.2.5-.2.2-.5.4-.5.7 0 .4.3.6.8.6.3 0 .6-.1.9-.1.7 0 1.3.3 1.9.8.9.7 1.8 1 2.8 1s1.9-.3 2.8-1c.6-.5 1.2-.8 1.9-.8.3 0 .6.1.9.1.5 0 .8-.2.8-.6 0-.3-.3-.5-.5-.7-.2-.2-.3-.3-.2-.5.1-.2.4-.2.6-.3.5-.1.8-.3.9-.6 0-.2-.1-.3-.3-.4-1.2-.4-2.4-1.3-3.1-2.4-.1-.2-.3-.4-.2-.6.1-.5.6-.7 1.3-1 .3-.1.6-.3.5-.7-.1-.2-.3-.3-.5-.2-.4.2-.8.4-1.3.3 0-.9 0-1.8-.2-2.7C20.6 6.5 18.3 5 16 5Z" fill="#16160F"/>
+              </svg>
+              <span className="text-sm font-bold text-[#16160F]">Snapchat</span>
+            </a>
+          </div>
+        </div>
       </section>
 
       {/* Counters */}
