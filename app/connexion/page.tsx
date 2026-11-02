@@ -6,12 +6,6 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { login } from '@/src/services/storage';
 
-const DEMO_ACCOUNTS = [
-  { emoji: '👩', label: 'Aminata Koné', sub: 'Ménage · Abobo',       phone: '07 00 00 00 01' },
-  { emoji: '👨‍💼', label: 'Ibrahim Bamba', sub: 'Commerçant · Yopougon', phone: '07 00 00 00 02' },
-  { emoji: '🏪', label: 'Point relais',   sub: 'Cocody',               phone: '07 00 00 00 03' },
-  { emoji: '🛡️', label: 'Administrateur', sub: 'Tableau de bord',       phone: '07 00 00 00 04' },
-];
 
 export default function ConnexionPage() {
   return <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-4xl animate-wiggle">🌿</div></div>}><ConnexionForm /></Suspense>;
@@ -45,11 +39,6 @@ function ConnexionForm() {
     toast(`Bienvenue, ${user.firstName} ! 👋`, 'success');
     if (user.role === 'admin') router.push('/admin/tableau-de-bord');
     else router.push(redirect);
-  }
-
-  function fillDemo(p: string) {
-    setPhone(formatPhone(p.replace(/\s/g, '')));
-    setError('');
   }
 
   return (
@@ -92,25 +81,10 @@ function ConnexionForm() {
           </form>
         </div>
 
-        <p className="text-center text-sm text-[#5C5C48] mb-6">
+        <p className="text-center text-sm text-[#5C5C48]">
           Pas encore de compte ?{' '}
           <Link href="/inscription" className="text-[#2A7A3A] font-bold hover:underline">Créer un compte</Link>
         </p>
-
-        {/* Comptes démo — 1 clic */}
-        <div className="bg-[#E8F5EA] rounded-2xl p-4">
-          <p className="text-xs font-bold text-[#2A7A3A] mb-3 uppercase tracking-wide">⚡ Comptes de démo — 1 clic</p>
-          <div className="grid grid-cols-2 gap-2">
-            {DEMO_ACCOUNTS.map(a => (
-              <button key={a.phone} onClick={() => fillDemo(a.phone)}
-                className="text-left px-3 py-2.5 rounded-xl bg-white border-2 border-transparent hover:border-[#2A7A3A] transition-all text-xs active:scale-95">
-                <div className="text-lg mb-0.5">{a.emoji}</div>
-                <p className="font-bold text-[#16160F]">{a.label}</p>
-                <p className="text-[#5C5C48]">{a.sub}</p>
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

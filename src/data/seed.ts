@@ -1,13 +1,14 @@
 import type { User, Report, Declaration, RelayPoint, CollectionTour, PricingConfig, Notification, Challenge, Reward } from '../types';
 
+// Grille tarifaire réelle EcoAbidjan (F CFA / kg)
 export const PRICING: PricingConfig = {
-  plastique_pet_sorted: 100, plastique_pet_unsorted: 40,
-  plastique_pehd_sorted: 100, plastique_pehd_unsorted: 40,
-  plastique_pp_sorted: 75, plastique_pp_unsorted: 30,
-  sachets_sorted: 50, sachets_unsorted: 20,
-  aluminium_sorted: 300, aluminium_unsorted: 120,
-  carton_sorted: 50, carton_unsorted: 0,
-  papier_sorted: 50, papier_unsorted: 0,
+  plastique_pet_sorted: 100,    plastique_pet_unsorted: 40,
+  plastique_pehd_sorted: 100,   plastique_pehd_unsorted: 40,
+  plastique_pp_sorted: 75,      plastique_pp_unsorted: 30,
+  sachets_sorted: 50,           sachets_unsorted: 20,
+  aluminium_sorted: 300,        aluminium_unsorted: 120,
+  carton_sorted: 50,            carton_unsorted: 0,
+  papier_sorted: 50,            papier_unsorted: 0,
   threshold_kg: 50,
   points_per_fcfa: 0.1,
   points_to_fcfa: 10,
@@ -17,274 +18,38 @@ export const PRICING: PricingConfig = {
 };
 
 export const WASTE_LABELS: Record<string, string> = {
-  plastique_pet: 'Bouteilles PET',
+  plastique_pet:  'Bouteilles PET',
   plastique_pehd: 'Bidons PEHD',
-  plastique_pp: 'Bouchons/Seaux PP',
-  sachets: 'Sachets/Films',
-  aluminium: 'Canettes aluminium',
-  carton: 'Carton',
-  papier: 'Papier blanc',
-  mixte: 'Ordures mélangées',
+  plastique_pp:   'Bouchons/Seaux PP',
+  sachets:        'Sachets/Films',
+  aluminium:      'Canettes aluminium',
+  carton:         'Carton',
+  papier:         'Papier blanc',
+  mixte:          'Ordures mélangées',
 };
 
 export const COMMUNE_CENTERS: Record<string, [number, number]> = {
-  Abobo: [5.418, -4.020],
-  Yopougon: [5.345, -4.075],
-  Cocody: [5.360, -3.980],
-  Koumassi: [5.297, -3.945],
-  Adjamé: [5.362, -4.022],
-  Plateau: [5.320, -4.016],
-  Marcory: [5.305, -3.993],
-  'Port-Bouët': [5.255, -3.930],
+  Abobo:       [5.418, -4.020],
+  Yopougon:    [5.345, -4.075],
+  Cocody:      [5.360, -3.980],
+  Koumassi:    [5.297, -3.945],
+  Adjamé:      [5.362, -4.022],
+  Plateau:     [5.320, -4.016],
+  Marcory:     [5.305, -3.993],
+  'Port-Bouët':[5.255, -3.930],
   Treichville: [5.298, -4.009],
-  Attécoubé: [5.340, -4.048],
-  Anyama: [5.490, -4.047],
+  Attécoubé:   [5.340, -4.048],
+  Anyama:      [5.490, -4.047],
   Bingerville: [5.358, -3.887],
-  Songon: [5.361, -4.207],
+  Songon:      [5.361, -4.207],
 };
 
-export const DEMO_USERS: User[] = [
-  {
-    id: 'u001',
-    phone: '0700000001',
-    name: 'Koné',
-    firstName: 'Aminata',
-    role: 'citizen',
-    commune: 'Abobo',
-    quartier: 'Abobo Gare',
-    householdSize: 5,
-    points: 240,
-    totalKgRecycled: 18.5,
-    level: 'Graine',
-    pin: '1234',
-    createdAt: '2026-09-01T08:00:00Z',
-  },
-  {
-    id: 'u002',
-    phone: '0700000002',
-    name: 'Bamba',
-    firstName: 'Ibrahim',
-    role: 'merchant',
-    commune: 'Yopougon',
-    quartier: 'Yopougon Selmer',
-    businessName: 'Supermarché Bamba',
-    businessType: 'Commerce alimentaire',
-    points: 0,
-    totalKgRecycled: 320,
-    level: 'Forêt',
-    pin: '1234',
-    createdAt: '2026-08-15T10:00:00Z',
-  },
-  {
-    id: 'u003',
-    phone: '0700000003',
-    name: 'Relais Cocody',
-    firstName: '',
-    role: 'relay',
-    commune: 'Cocody',
-    quartier: 'Riviera 2',
-    points: 0,
-    totalKgRecycled: 0,
-    level: 'Graine',
-    pin: '1234',
-    createdAt: '2026-08-01T08:00:00Z',
-  },
-  {
-    id: 'u004',
-    phone: '0700000004',
-    name: 'Admin',
-    firstName: 'EcoAbidjan',
-    role: 'admin',
-    commune: 'Plateau',
-    points: 0,
-    totalKgRecycled: 0,
-    level: 'Graine',
-    pin: '1234',
-    createdAt: '2026-07-01T08:00:00Z',
-  },
-];
-
-export const RELAY_POINTS: RelayPoint[] = [
-  { id: 'r001', name: 'Supermarché A+ – Abobo Gare', commune: 'Abobo', address: 'Abobo Gare, face marché', latitude: 5.420, longitude: -4.018, capacityKg: 700, currentLoadKg: 210, hours: 'Lun–Sam 8h–20h', isActive: true },
-  { id: 'r002', name: 'Cash Express – Abobo Baoulé', commune: 'Abobo', address: 'Quartier Baoulé, Abobo', latitude: 5.416, longitude: -4.022, capacityKg: 700, currentLoadKg: 140, hours: 'Lun–Dim 7h–21h', isActive: true },
-  { id: 'r003', name: 'Supermarché Bamba – Yopougon', commune: 'Yopougon', address: 'Zone Selmer, Yopougon', latitude: 5.347, longitude: -4.073, capacityKg: 600, currentLoadKg: 320, hours: 'Lun–Sam 8h–20h', isActive: true },
-  { id: 'r004', name: 'Maxi Shop – Yopougon Marché', commune: 'Yopougon', address: 'Marché Yopougon Centre', latitude: 5.342, longitude: -4.078, capacityKg: 600, currentLoadKg: 90, hours: 'Lun–Dim 7h–22h', isActive: true },
-  { id: 'r005', name: 'Leader Price – Cocody Riviera', commune: 'Cocody', address: 'Riviera 2, Cocody', latitude: 5.362, longitude: -3.978, capacityKg: 500, currentLoadKg: 180, hours: 'Lun–Sam 9h–21h', isActive: true },
-  { id: 'r006', name: 'Shop Express – Cocody Centre', commune: 'Cocody', address: 'Av. Christiani, Cocody', latitude: 5.358, longitude: -3.983, capacityKg: 500, currentLoadKg: 60, hours: 'Lun–Dim 8h–20h', isActive: true },
-  { id: 'r007', name: 'Supermarchex – Koumassi', commune: 'Koumassi', address: 'Zone Industrielle, Koumassi', latitude: 5.299, longitude: -3.943, capacityKg: 500, currentLoadKg: 115, hours: 'Lun–Sam 8h–20h', isActive: true },
-  { id: 'r008', name: 'Orca Deco – Koumassi Résidentiel', commune: 'Koumassi', address: 'Koumassi Résidentiel', latitude: 5.295, longitude: -3.948, capacityKg: 500, currentLoadKg: 75, hours: 'Lun–Sam 9h–19h', isActive: true },
-];
-
-export const DEMO_REPORTS: Report[] = [
-  {
-    id: 'sig001',
-    userId: 'u001',
-    anonymous: false,
-    photoUrl: undefined,
-    latitude: 5.422,
-    longitude: -4.019,
-    commune: 'Abobo',
-    address: 'Rue du Canal, Abobo Gare',
-    analysis: {
-      objets: ['sacs plastiques', 'bouteilles', 'restes alimentaires'],
-      materiaux: [{ nom: 'plastique', pourcentage: 45 }, { nom: 'organique', pourcentage: 40 }, { nom: 'carton', pourcentage: 15 }],
-      volume_m3: 1.2,
-      poids_estime_kg: 180,
-      risque: 'élevé',
-      priorite: 'haute',
-      resume: 'Dépôt important d\'ordures ménagères mélangées près d\'un caniveau.',
-    },
-    status: 'reçu',
-    priority: 'haute',
-    trackingNumber: 'SIG-2026-00001',
-    createdAt: '2026-10-28T09:15:00Z',
-    updatedAt: '2026-10-28T09:15:00Z',
-  },
-  {
-    id: 'sig002',
-    anonymous: true,
-    latitude: 5.348,
-    longitude: -4.072,
-    commune: 'Yopougon',
-    address: 'Marché Yopougon, derrière les étals',
-    analysis: {
-      objets: ['cartons', 'bouteilles plastiques', 'cannettes'],
-      materiaux: [{ nom: 'carton', pourcentage: 50 }, { nom: 'plastique', pourcentage: 35 }, { nom: 'métal', pourcentage: 15 }],
-      volume_m3: 0.8,
-      poids_estime_kg: 90,
-      risque: 'moyen',
-      priorite: 'moyenne',
-      resume: 'Accumulation de déchets recyclables mélangés près du marché.',
-    },
-    status: 'en_cours',
-    assignedTeam: 'Équipe B',
-    priority: 'moyenne',
-    trackingNumber: 'SIG-2026-00002',
-    createdAt: '2026-10-27T14:30:00Z',
-    updatedAt: '2026-10-28T10:00:00Z',
-  },
-  {
-    id: 'sig003',
-    userId: 'u001',
-    anonymous: false,
-    latitude: 5.358,
-    longitude: -3.985,
-    commune: 'Cocody',
-    address: 'Voie Houphouët, Cocody',
-    analysis: {
-      objets: ['gravats', 'ferraille', 'bois'],
-      materiaux: [{ nom: 'gravats', pourcentage: 60 }, { nom: 'métal', pourcentage: 25 }, { nom: 'bois', pourcentage: 15 }],
-      volume_m3: 2.5,
-      poids_estime_kg: 450,
-      risque: 'faible',
-      priorite: 'basse',
-      resume: 'Déchets de chantier abandonnés sur la voie publique.',
-    },
-    status: 'traité',
-    assignedTeam: 'Équipe A',
-    priority: 'basse',
-    trackingNumber: 'SIG-2026-00003',
-    createdAt: '2026-10-20T11:00:00Z',
-    updatedAt: '2026-10-25T16:00:00Z',
-  },
-];
-
-export const DEMO_DECLARATIONS: Declaration[] = [
-  {
-    id: 'dec001',
-    userId: 'u002',
-    items: [
-      { type: 'carton', weightKg: 80, sorted: true },
-      { type: 'plastique_pet', weightKg: 30, sorted: true },
-    ],
-    totalWeightKg: 110,
-    totalValue: 7000,
-    pointsEarned: 0,
-    isLargeVolume: true,
-    status: 'collecté',
-    paymentMethod: 'orange_money',
-    collectionSlot: '31/10/2026 à 09h–12h',
-    commune: 'Yopougon',
-    qrCode: 'ECO-DEC001',
-    createdAt: '2026-10-29T08:00:00Z',
-  },
-  {
-    id: 'dec002',
-    userId: 'u001',
-    items: [
-      { type: 'plastique_pet', weightKg: 3.5, sorted: true },
-      { type: 'aluminium', weightKg: 1.2, sorted: true },
-    ],
-    totalWeightKg: 4.7,
-    totalValue: 710,
-    pointsEarned: 71,
-    isLargeVolume: false,
-    status: 'en_attente',
-    relayPointId: 'r001',
-    commune: 'Abobo',
-    qrCode: 'ECO-4F7K2',
-    createdAt: '2026-10-30T10:00:00Z',
-  },
-];
-
-export const DEMO_TOURS: CollectionTour[] = [
-  {
-    id: 'tour001',
-    date: '2026-10-31',
-    communes: ['Yopougon', 'Abobo'],
-    stops: [
-      { order: 1, declarationId: 'dec001', userId: 'u002', address: 'Zone Selmer, Yopougon', latitude: 5.347, longitude: -4.073, weightKg: 110, commune: 'Yopougon' },
-      { order: 2, declarationId: 'decX1', userId: 'uX1', address: 'Marché Yopougon Centre', latitude: 5.342, longitude: -4.078, weightKg: 75, commune: 'Yopougon' },
-      { order: 3, declarationId: 'decX2', userId: 'uX2', address: 'Abobo Gare, face marché', latitude: 5.420, longitude: -4.018, weightKg: 60, commune: 'Abobo' },
-    ],
-    totalWeightKg: 245,
-    totalDistanceKm: 18.4,
-    estimatedDurationMin: 95,
-    estimatedCostFCFA: 17360,
-    optimizedByAI: true,
-    status: 'planifiée',
-    createdAt: '2026-10-30T16:00:00Z',
-  },
-];
-
-export const DEMO_NOTIFICATIONS: Notification[] = [
-  {
-    id: 'n001',
-    type: 'report',
-    title: 'Nouveau signalement – Abobo',
-    message: 'SIG-2026-00001 · Rue du Canal · Priorité haute · 180 kg estimés',
-    refId: 'sig001',
-    read: false,
-    createdAt: '2026-10-28T09:15:00Z',
-  },
-  {
-    id: 'n002',
-    type: 'declaration',
-    title: 'Collecte demandée – Yopougon',
-    message: 'Supermarché Bamba · 110 kg · Rémunération directe · Créneau 31/10',
-    refId: 'dec001',
-    read: false,
-    createdAt: '2026-10-29T08:00:00Z',
-  },
-  {
-    id: 'n003',
-    type: 'report',
-    title: 'Signalement traité – Cocody',
-    message: 'SIG-2026-00003 · Voie Houphouët · Clôturé par Équipe A',
-    refId: 'sig003',
-    read: true,
-    createdAt: '2026-10-25T16:00:00Z',
-  },
-];
-
-export const DEMO_CHALLENGES: Challenge[] = [
-  { id: 'ch001', title: 'Plastique du mois', description: 'Recycler 10 kg de plastique trié', points: 20, target: 10, unit: 'kg', type: 'recycle_kg', material: 'plastique_pet', progress: 3.5, completed: false, expiresAt: '2026-10-31T23:59:00Z' },
-  { id: 'ch002', title: 'Signaleur actif', description: 'Faire 3 signalements validés', points: 15, target: 3, unit: 'signalements', type: 'reports', progress: 1, completed: false, expiresAt: '2026-10-31T23:59:00Z' },
-  { id: 'ch003', title: 'Fidèle du relais', description: 'Déposer 4 semaines d\'affilée', points: 30, target: 4, unit: 'semaines', type: 'streak', progress: 2, completed: false, expiresAt: '2026-11-30T23:59:00Z' },
-];
-
-export const DEMO_REWARDS: Reward[] = [
-  { id: 'rw001', title: 'Bon d\'achat 1 000 FCFA', partner: 'Supermarché A+', pointsCost: 100, valueFCFA: 1000, description: 'Valable 30 jours dans tous les Supermarchés A+', available: true },
-  { id: 'rw002', title: 'Bon d\'achat 2 500 FCFA', partner: 'Cash Express', pointsCost: 250, valueFCFA: 2500, description: 'Valable 60 jours dans tous les Cash Express', available: true },
-  { id: 'rw003', title: 'Bon d\'achat 5 000 FCFA', partner: 'Leader Price', pointsCost: 500, valueFCFA: 5000, description: 'Valable 60 jours dans tous les Leader Price', available: true },
-];
+// Aucune donnée fictive — tableaux vides au démarrage
+export const DEMO_USERS: User[]             = [];
+export const RELAY_POINTS: RelayPoint[]     = [];
+export const DEMO_REPORTS: Report[]         = [];
+export const DEMO_DECLARATIONS: Declaration[] = [];
+export const DEMO_TOURS: CollectionTour[]   = [];
+export const DEMO_NOTIFICATIONS: Notification[] = [];
+export const DEMO_CHALLENGES: Challenge[]   = [];
+export const DEMO_REWARDS: Reward[]         = [];

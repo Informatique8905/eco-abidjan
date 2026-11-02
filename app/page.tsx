@@ -132,10 +132,10 @@ export default function HomePage() {
       {/* Counters */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
         {[
-          { emoji: '⚖️', label: 'kg recyclés', value: Math.max(stats.totalWeightKg, 12400) },
-          { emoji: '📍', label: 'Dépôts signalés', value: Math.max(stats.totalReports, 284) },
-          { emoji: '✅', label: 'Dépôts traités', value: Math.max(stats.treatedReports, 196) },
-          { emoji: '💰', label: 'FCFA reversés', value: Math.max(stats.totalRemunerationFCFA, 1850000) },
+          { emoji: '⚖️', label: 'kg recyclés',    value: stats.totalWeightKg },
+          { emoji: '📍', label: 'Dépôts signalés', value: stats.totalReports },
+          { emoji: '✅', label: 'Dépôts traités',  value: stats.treatedReports },
+          { emoji: '💰', label: 'FCFA reversés',   value: stats.totalRemunerationFCFA },
         ].map((s, i) => (
           <Card key={i} className="p-4 text-center rounded-2xl">
             <div className="text-3xl mb-1">{s.emoji}</div>

@@ -1,6 +1,6 @@
 'use client';
 import type { User, Report, Declaration, RelayPoint, CollectionTour, Notification, PointTransaction, PricingConfig } from '../types';
-import { DEMO_USERS, DEMO_REPORTS, DEMO_DECLARATIONS, RELAY_POINTS, DEMO_TOURS, DEMO_NOTIFICATIONS, PRICING } from '../data/seed';
+import { PRICING } from '../data/seed';
 
 const KEYS = {
   users: 'eco_users',
@@ -30,12 +30,27 @@ function set<T>(key: string, value: T): void {
 
 export function initializeStore(): void {
   if (get(KEYS.initialized, false)) return;
-  set(KEYS.users, DEMO_USERS);
-  set(KEYS.reports, DEMO_REPORTS);
-  set(KEYS.declarations, DEMO_DECLARATIONS);
-  set(KEYS.relayPoints, RELAY_POINTS);
-  set(KEYS.tours, DEMO_TOURS);
-  set(KEYS.notifications, DEMO_NOTIFICATIONS);
+  // Crée uniquement le compte administrateur — pas de données fictives
+  const adminPhone = process.env.NEXT_PUBLIC_ADMIN_PHONE ?? '0700000000';
+  const adminUser: User = {
+    id: 'admin-001',
+    phone: adminPhone,
+    name: 'Admin',
+    firstName: 'EcoAbidjan',
+    role: 'admin',
+    commune: 'Plateau',
+    points: 0,
+    totalKgRecycled: 0,
+    level: 'Graine',
+    pin: '0000',
+    createdAt: new Date().toISOString(),
+  };
+  set(KEYS.users, [adminUser]);
+  set(KEYS.reports, []);
+  set(KEYS.declarations, []);
+  set(KEYS.relayPoints, []);
+  set(KEYS.tours, []);
+  set(KEYS.notifications, []);
   set(KEYS.transactions, []);
   set(KEYS.pricing, PRICING);
   set(KEYS.initialized, true);

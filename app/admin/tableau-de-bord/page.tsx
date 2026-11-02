@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { TrendingUp, AlertTriangle, RefreshCw, DollarSign, Star, Truck, CheckCircle, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getDashboardStats, getNotifications, formatFCFA, resetStore } from '@/src/services/storage';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
@@ -44,14 +43,14 @@ export default function DashboardPage() {
   const topCommune = communeData.sort((a, b) => b.kg - a.kg)[0];
 
   const KPI = [
-    { label: 'Tonnage collecté', value: `${stats.totalWeightKg.toFixed(0)} kg`, icon: TrendingUp, color: 'text-[#2A7A3A]' },
-    { label: 'Rémunérations', value: formatFCFA(stats.totalRemunerationFCFA), icon: DollarSign, color: 'text-[#2A7A3A]' },
-    { label: 'Points distribués', value: stats.totalPointsDistributed.toLocaleString('fr-FR'), icon: Star, color: 'text-[#2A7A3A]' },
-    { label: 'Signalements ouverts', value: String(stats.openReports), icon: AlertTriangle, color: 'text-[#E05A1A]' },
-    { label: 'Signalements traités', value: String(stats.treatedReports), icon: CheckCircle, color: 'text-[#2A7A3A]' },
-    { label: 'Coût évité', value: formatFCFA(stats.savedCostFCFA), icon: BarChart3, color: 'text-[#2A7A3A]' },
-    { label: 'Coût collecte', value: formatFCFA(stats.collectionCostFCFA), icon: Truck, color: 'text-[#5C5C48]' },
-    { label: 'Notifications', value: String(notifCount), icon: RefreshCw, color: notifCount > 0 ? 'text-[#E05A1A]' : 'text-[#5C5C48]' },
+    { label: 'Tonnage collecté', value: `${stats.totalWeightKg.toFixed(0)} kg`, emoji: '📈', color: 'text-[#2A7A3A]' },
+    { label: 'Rémunérations', value: formatFCFA(stats.totalRemunerationFCFA), emoji: '💰', color: 'text-[#2A7A3A]' },
+    { label: 'Points distribués', value: stats.totalPointsDistributed.toLocaleString('fr-FR'), emoji: '⭐', color: 'text-[#2A7A3A]' },
+    { label: 'Signalements ouverts', value: String(stats.openReports), emoji: '⚠️', color: 'text-[#E05A1A]' },
+    { label: 'Signalements traités', value: String(stats.treatedReports), emoji: '✅', color: 'text-[#2A7A3A]' },
+    { label: 'Coût évité', value: formatFCFA(stats.savedCostFCFA), emoji: '📊', color: 'text-[#2A7A3A]' },
+    { label: 'Coût collecte', value: formatFCFA(stats.collectionCostFCFA), emoji: '🚚', color: 'text-[#5C5C48]' },
+    { label: 'Notifications', value: String(notifCount), emoji: '🔄', color: notifCount > 0 ? 'text-[#E05A1A]' : 'text-[#5C5C48]' },
   ];
 
   return (
@@ -59,10 +58,10 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#16160F]">Tableau de bord</h1>
-          <p className="text-[#5C5C48] text-sm">Simulation · 500 ménages · 200 commerçants · 4 communes</p>
+          <p className="text-[#5C5C48] text-sm">Données en temps réel</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => { resetStore(); window.location.reload(); }}>
-          Réinitialiser démo
+          Réinitialiser
         </Button>
       </div>
 
@@ -72,7 +71,7 @@ export default function DashboardPage() {
           <Card key={k.label} className="p-4">
             <div className="flex items-start justify-between mb-2">
               <p className="text-xs text-[#5C5C48] font-medium">{k.label}</p>
-              <k.icon className={`w-4 h-4 ${k.color} flex-shrink-0`} strokeWidth={2} />
+              <span className="text-base flex-shrink-0">{k.emoji}</span>
             </div>
             <p className={`text-xl font-extrabold ${k.color}`}>{k.value}</p>
           </Card>
@@ -91,7 +90,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={communeData.length > 0 ? communeData : [{ commune: 'Abobo', kg: 1200, signalements: 12 }, { commune: 'Yopougon', kg: 980, signalements: 8 }, { commune: 'Cocody', kg: 640, signalements: 5 }, { commune: 'Koumassi', kg: 520, signalements: 4 }]}>
+              <BarChart data={communeData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#DEDED0" />
                 <XAxis dataKey="commune" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
@@ -132,7 +131,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={communeData.length > 0 ? communeData : [{ commune: 'Abobo', kg: 0, signalements: 38 }, { commune: 'Yopougon', kg: 0, signalements: 26 }, { commune: 'Cocody', kg: 0, signalements: 19 }, { commune: 'Koumassi', kg: 0, signalements: 14 }]}>
+            <BarChart data={communeData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#DEDED0" />
               <XAxis dataKey="commune" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
