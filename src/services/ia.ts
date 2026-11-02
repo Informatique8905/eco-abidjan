@@ -27,12 +27,12 @@ const SIMULATED_ANALYSES: WasteAnalysis[] = [
   },
 ];
 
-export async function analyzerPhoto(imageBase64: string, context?: string): Promise<WasteAnalysis> {
+export async function analyzerPhoto(imageBase64: string, context?: string, commune?: string): Promise<WasteAnalysis> {
   try {
     const res = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64, context }),
+      body: JSON.stringify({ imageBase64, context, commune }),
     });
     if (res.ok) {
       const data = await res.json();

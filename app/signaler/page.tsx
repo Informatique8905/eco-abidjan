@@ -72,7 +72,7 @@ export default function SignalerPage() {
   async function runAnalysis() {
     setAnalyzing(true);
     try {
-      const result = await analyzerPhoto(photoPreview ?? '');
+      const result = await analyzerPhoto(photoPreview ?? '', undefined, commune);
       setAnalysis(result);
     } catch { toast('Analyse échouée, réessayez.', 'error'); }
     setAnalyzing(false);
