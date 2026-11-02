@@ -18,11 +18,27 @@ const PRIORITY_EMOJI   = { haute: '🔴', moyenne: '🟡', basse: '🟢' };
 
 export default function SignalementsAdminPage() {
   const { toast } = useToast();
-  const [reports,  setReports]  = useState<Report[]>([]);
-  const [selected, setSelected] = useState<Report | null>(null);
-  const [filter,   setFilter]   = useState('all');
+  const [reports,   setReports]   = useState<Report[]>([]);
+  const [selected,  setSelected]  = useState<Report | null>(null);
+  const [filter,    setFilter]    = useState('all');
+  const [newAlert,  setNewAlert]  = useState(false);
 
-  useEffect(() => { setReports(getReports()); }, []);
+  useEffect(() => {
+    const load = () => {
+      const r = getReports();
+      setReports(prev => {
+        if (prev.length > 0 && r.length > prev.length) {
+          setNewAlert(true);
+          setTimeout(() => setNewAlert(false), 4000);
+          toast(`🔴 Nouveau signalement reçu !`, 'info');
+        }
+        return r;
+      });
+    };
+    load();
+    const interval = setInterval(load, 5000); // polling toutes les 5s
+    return () => clearInterval(interval);
+  }, []);
 
   function handleStatus(id: string, status: Report['status']) {
     updateReport(id, { status });
@@ -37,7 +53,13 @@ export default function SignalementsAdminPage() {
     <div className="space-y-5 max-w-7xl">
       <div>
         <h1 className="font-display text-2xl font-extrabold">📍 Signalements</h1>
-        <p className="text-sm text-[#5C5C48]">{reports.length} signalement{reports.length > 1 ? 's' : ''} au total</p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <p className="text-sm text-[#5C5C48]">{reports.length} signalement{reports.length > 1 ? 's' : ''} au total</p>
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E8F5EA] text-[10px] font-bold text-[#2A7A3A]">
+            <span className={`w-2 h-2 rounded-full ${newAlert ? 'bg-[#E05A1A] animate-pulse' : 'bg-[#2A7A3A]'}`} />
+            {newAlert ? 'Nouveau !' : 'En direct'}
+          </span>
+        </div>
       </div>
 
       {/* Filtres */}

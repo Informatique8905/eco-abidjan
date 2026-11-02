@@ -16,28 +16,34 @@ export async function POST(req: NextRequest) {
   const ragCtx = buildRAGContext(commune as Commune | undefined);
   const ragText = formatRAGContext(ragCtx);
 
-  const prompt = `Tu es un expert en gestion des déchets urbains à Abidjan, Côte d'Ivoire. Analyse cette photo d'un dépôt sauvage.
+  const prompt = `Tu es un système d'analyse de déchets de précision. Tu analyses des photos de dépôts sauvages à Abidjan (Côte d'Ivoire) pour la plateforme EcoAbidjan.
 
 ${ragText}
+${context ? `Contexte signalement : ${context}` : ''}
 
-${context ? `Contexte additionnel du signalement : ${context}` : ''}
+INSTRUCTIONS STRICTES :
+1. Analyse UNIQUEMENT ce que tu vois réellement dans la photo — AUCUNE estimation aléatoire
+2. Pour le poids : utilise les densités réelles (plastique=30-100kg/m³, organique=250-400kg/m³, carton=80-120kg/m³, métal=200-500kg/m³, gravats=1200-1800kg/m³)
+3. Pour le volume : estime en regardant les dimensions relatives des objets par rapport à des repères connus (bouteille=0.5L, sac=50L, benne=10m³)
+4. Les pourcentages des matériaux DOIVENT totaliser exactement 100
+5. Sois précis au kg près pour les petits dépôts, à 10kg près pour les grands
+6. Si la photo est floue ou ne montre pas clairement des déchets, indique risque="faible" et un resume explicatif
 
-En utilisant le contexte terrain ci-dessus, analyse précisément ce dépôt et réponds UNIQUEMENT en JSON valide :
+Réponds UNIQUEMENT en JSON valide (pas de texte avant ou après) :
 {
-  "objets": ["liste des objets visibles dans la photo"],
+  "objets": ["liste précise des objets identifiés"],
   "materiaux": [
-    { "nom": "plastique", "pourcentage": 45 },
-    { "nom": "organique", "pourcentage": 30 }
+    { "nom": "plastique", "pourcentage": 45 }
   ],
-  "volume_m3": 1.5,
-  "poids_estime_kg": 200,
+  "volume_m3": 0.8,
+  "poids_estime_kg": 65,
   "risque": "faible|moyen|élevé",
   "priorite": "basse|moyenne|haute",
-  "resume": "Description précise en 2 phrases max, tenant compte du contexte local (commune, saison, historique)"
+  "resume": "Description factuelle en 2 phrases : ce qui est visible + recommandation d'intervention"
 }
 
-Matériaux possibles : plastique, organique, carton, métal, verre, gravats, chimique, caoutchouc, bois, textile.
-Calibre ton évaluation de risque et priorité en fonction du contexte terrain fourni (commune, saison, historique des signalements).`;
+Matériaux : plastique, organique, carton, métal, verre, gravats, chimique, caoutchouc, bois, textile.
+Risque = impact sanitaire/environnemental réel. Priorité = urgence intervention (haute si risque sanitaire immédiat ou zone dense).`;
 
   try {
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -64,7 +70,7 @@ Calibre ton évaluation de risque et priorité en fonction du contexte terrain f
             ],
           },
         ],
-        max_tokens: 800,
+        max_tokens: 1000,
         temperature: 0.1,
       }),
     });

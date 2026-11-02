@@ -16,6 +16,29 @@ import { api } from '@/src/services/api';
 const COMMUNES: Commune[] = ['Abobo','Adjamé','Attécoubé','Cocody','Koumassi','Marcory','Plateau','Port-Bouët','Treichville','Yopougon','Anyama','Bingerville','Songon'];
 const STEPS = ['Photo', 'Lieu', 'Identité', 'Analyse IA', 'Envoi'];
 
+const ANALYZING_MSGS = [
+  'Détection des matériaux…',
+  'Estimation du volume…',
+  'Calcul du poids…',
+  'Évaluation du risque sanitaire…',
+  'Analyse du contexte local…',
+  'Finalisation du rapport…',
+];
+
+function AnalyzingMessages() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % ANALYZING_MSGS.length), 1800);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="text-center space-y-1">
+      <p className="text-sm font-semibold text-[#16160F] transition-all">{ANALYZING_MSGS[idx]}</p>
+      <p className="text-xs text-[#5C5C48]">L'IA analyse votre photo en temps réel</p>
+    </div>
+  );
+}
+
 export default function SignalerPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -53,13 +76,27 @@ export default function SignalerPage() {
 
   function requestGeo() {
     if (!consentGiven) {
-      toast('Veuillez d\'abord accepter la géolocalisation.', 'info');
+      toast('Veuillez cocher la case de géolocalisation.', 'info');
       return;
     }
     setGeoLoading(true);
+    // Réinitialise pour forcer un vrai rafraîchissement
+    setLat(null);
+    setLng(null);
     navigator.geolocation.getCurrentPosition(
-      pos => { setLat(pos.coords.latitude); setLng(pos.coords.longitude); setGeoAccuracy(Math.round(pos.coords.accuracy)); setGeoLoading(false); toast('Position obtenue !', 'success'); },
-      () => { setGeoLoading(false); toast('Position non disponible. Saisissez votre adresse.', 'info'); }
+      pos => {
+        setLat(pos.coords.latitude);
+        setLng(pos.coords.longitude);
+        setGeoAccuracy(Math.round(pos.coords.accuracy));
+        setGeoLoading(false);
+        toast(`Position exacte obtenue (±${Math.round(pos.coords.accuracy)} m)`, 'success');
+      },
+      err => {
+        setGeoLoading(false);
+        if (err.code === 1) toast('Permission GPS refusée. Activez la localisation dans vos paramètres.', 'error');
+        else toast('GPS indisponible. Sélectionnez votre commune manuellement.', 'info');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   }
 
@@ -239,11 +276,10 @@ export default function SignalerPage() {
               <span>J'accepte que ma position GPS soit utilisée pour ce signalement (loi n° 2013-450 sur les données personnelles)</span>
             </label>
           </div>
-          <Button onClick={requestGeo} variant="outline" className="w-full mb-4" disabled={geoLoading}>
-            <span className="mr-2">📍</span>
-            {geoLoading ? 'Localisation...' : 'Utiliser ma position GPS'}
+          <Button onClick={requestGeo} variant="outline" className="w-full mb-4 min-h-[52px] text-base font-bold active:scale-95 transition-transform" disabled={geoLoading}>
+            <span className="mr-2 text-lg">{geoLoading ? '⏳' : lat ? '✅' : '📍'}</span>
+            {geoLoading ? 'Localisation en cours…' : lat ? `Position obtenue (±${geoAccuracy ?? '?'} m) — Actualiser` : 'Utiliser ma position GPS'}
           </Button>
-          {lat && <p className="text-xs text-[#2A7A3A] mb-3">Position obtenue {geoAccuracy && `(précision : ±${geoAccuracy} m)`}</p>}
           <div className="mb-3">
             <Select
               label="Commune"
@@ -288,10 +324,21 @@ export default function SignalerPage() {
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">4. Analyse par l'IA</h2>
           {analyzing ? (
-            <div className="flex flex-col items-center py-8 gap-3">
-              <span className="text-4xl animate-spin inline-block">⏳</span>
-              <p className="text-sm text-[#5C5C48]">Analyse de la photo en cours…</p>
-              <p className="text-xs text-[#5C5C48]/70">Snowflake Cortex · IA multimodale</p>
+            <div className="flex flex-col items-center py-10 gap-5">
+              {/* Cercle animé */}
+              <div className="relative w-20 h-20">
+                <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="#DEDED0" strokeWidth="6" />
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="#2A7A3A" strokeWidth="6"
+                    strokeDasharray="213" strokeDashoffset="53"
+                    className="transition-all duration-1000"
+                    style={{ animation: 'dash 2s ease-in-out infinite' }} />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-3xl">🔍</span>
+              </div>
+              {/* Messages rotatifs */}
+              <AnalyzingMessages />
+              <p className="text-[10px] text-[#5C5C48]/60 font-mono">Grok Vision · RAG Abidjan</p>
             </div>
           ) : analysis ? (
             <div className="space-y-4">
@@ -355,7 +402,12 @@ export default function SignalerPage() {
             <Button variant="outline" onClick={() => setStep(s => s - 1)}><span className="mr-1">‹</span> Retour</Button>
           ) : <div />}
           {step === 3 ? (
-            <Button onClick={submit} className="flex-1" disabled={analyzing}>
+            <Button
+              onClick={submit}
+              onTouchStart={(e) => { e.preventDefault(); if (!analyzing) submit(); }}
+              className="flex-1 min-h-[56px] text-base font-bold active:scale-95 transition-transform"
+              disabled={analyzing}
+            >
               {analyzing
                 ? <><span className="mr-2 animate-spin inline-block">⏳</span> Analyse en cours…</>
                 : <><span className="mr-2">✅</span> Envoyer le signalement</>}
