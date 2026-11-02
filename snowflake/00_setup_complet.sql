@@ -48,12 +48,19 @@ INSERT INTO PRICES VALUES ('CARTON', 200), ('PLASTIQUE', 250), ('ALUMINIUM', 300
 CREATE OR REPLACE TABLE COMMUNES (COMMUNE_ID INT PRIMARY KEY, NAME STRING, CENTER GEOGRAPHY);
 INSERT INTO COMMUNES
 SELECT column1, column2, ST_MAKEPOINT(column3, column4) FROM VALUES
-  (1, 'Cocody',      -3.9810, 5.3599),
-  (2, 'Yopougon',    -4.0890, 5.3364),
-  (3, 'Abobo',       -4.0204, 5.4194),
-  (4, 'Treichville', -4.0100, 5.2925),
-  (5, 'Marcory',     -3.9830, 5.3030),
-  (6, 'Plateau',     -4.0230, 5.3240);
+  (1,  'Cocody',      -3.9810, 5.3600),
+  (2,  'Yopougon',    -4.0750, 5.3450),
+  (3,  'Abobo',       -4.0200, 5.4180),
+  (4,  'Treichville', -4.0090, 5.2980),
+  (5,  'Marcory',     -3.9930, 5.3050),
+  (6,  'Plateau',     -4.0160, 5.3200),
+  (7,  'Koumassi',    -3.9450, 5.2970),
+  (8,  'Adjamé',      -4.0220, 5.3620),
+  (9,  'Attécoubé',   -4.0480, 5.3400),
+  (10, 'Port-Bouët',  -3.9300, 5.2550),
+  (11, 'Anyama',      -4.0470, 5.4900),
+  (12, 'Bingerville', -3.8870, 5.3580),
+  (13, 'Songon',      -4.2070, 5.3610);
 
 CREATE OR REPLACE TABLE USERS (
   USER_ID STRING PRIMARY KEY,
@@ -70,9 +77,11 @@ CREATE OR REPLACE TABLE RELAY_POINTS (RELAY_ID STRING PRIMARY KEY, NAME STRING, 
 
 CREATE OR REPLACE TABLE REPORTS (
   REPORT_ID STRING PRIMARY KEY,
+  TRACKING_NUMBER STRING,
   USER_ID STRING,
   LOCATION GEOGRAPHY,
   COMMUNE STRING,
+  ADDRESS STRING,
   PHOTO_PATH STRING,           -- chemin relatif dans @PHOTOS
   REPORTED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
   AI_DESCRIPTION STRING,
@@ -81,7 +90,8 @@ CREATE OR REPLACE TABLE REPORTS (
   AI_MATERIALS ARRAY,
   AI_WEIGHT_KG FLOAT,
   AI_RAW VARIANT,
-  STATUS STRING DEFAULT 'NOUVEAU'  -- NOUVEAU | ANALYSE | PLANIFIE | TRAITE
+  STATUS STRING DEFAULT 'NOUVEAU',  -- NOUVEAU | ANALYSE | PLANIFIE | TRAITE
+  PRIORITY STRING DEFAULT 'moyenne' -- basse | moyenne | haute
 );
 
 CREATE OR REPLACE TABLE DECLARATIONS (
@@ -107,98 +117,7 @@ CREATE OR REPLACE TABLE PAYMENTS (
   AMOUNT_FCFA NUMBER(12,2), METHOD STRING DEFAULT 'MOBILE_MONEY', TS TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
 );
 
--- ------------------------------------------------------------
--- 03_synthetic_data.sql
--- ------------------------------------------------------------
--- Jeu de données synthétique : 500 ménages, 200 commerçants, 6 communes (GENERATOR)
-USE SCHEMA ECOABIDJAN.CORE;
-
--- Ménages
-INSERT INTO USERS (USER_ID, USER_TYPE, NAME, PHONE, COMMUNE, LOCATION, POINTS_BALANCE)
-WITH g AS (SELECT SEQ4() + 1 AS n FROM TABLE(GENERATOR(ROWCOUNT => 500)))
-SELECT 'M' || LPAD(g.n, 4, '0'), 'MENAGE',
-       'Ménage ' || ARRAY_CONSTRUCT('Koné','Kouassi','Traoré','Yao','Bamba','Ouattara','Diabaté','Konan','Coulibaly','N''Guessan')[MOD(g.n,10)] || ' #' || g.n,
-       '+225 07' || LPAD(UNIFORM(0, 99999999, RANDOM()), 8, '0'),
-       c.NAME,
-       ST_MAKEPOINT(ST_X(c.CENTER) + UNIFORM(-0.018::FLOAT, 0.018::FLOAT, RANDOM()),
-                    ST_Y(c.CENTER) + UNIFORM(-0.014::FLOAT, 0.014::FLOAT, RANDOM())),
-       0
-FROM g JOIN COMMUNES c ON c.COMMUNE_ID = MOD(g.n, 6) + 1;
-
--- Commerçants (maquis, supermarchés, grossistes, restaurants...)
-INSERT INTO USERS (USER_ID, USER_TYPE, NAME, PHONE, COMMUNE, LOCATION, POINTS_BALANCE)
-WITH g AS (SELECT SEQ4() + 1 AS n FROM TABLE(GENERATOR(ROWCOUNT => 200)))
-SELECT 'C' || LPAD(g.n, 4, '0'), 'COMMERCANT',
-       ARRAY_CONSTRUCT('Maquis','Supermarché','Grossiste','Restaurant','Boutique','Cave','Pâtisserie','Quincaillerie')[MOD(g.n,8)] || ' ' || c.NAME || ' #' || g.n,
-       '+225 05' || LPAD(UNIFORM(0, 99999999, RANDOM()), 8, '0'),
-       c.NAME,
-       ST_MAKEPOINT(ST_X(c.CENTER) + UNIFORM(-0.02::FLOAT, 0.02::FLOAT, RANDOM()),
-                    ST_Y(c.CENTER) + UNIFORM(-0.016::FLOAT, 0.016::FLOAT, RANDOM())),
-       0
-FROM g JOIN COMMUNES c ON c.COMMUNE_ID = MOD(g.n, 6) + 1;
-
--- Points relais : 3 magasins partenaires par commune
-INSERT INTO RELAY_POINTS
-WITH g AS (SELECT SEQ4() AS n FROM TABLE(GENERATOR(ROWCOUNT => 18)))
-SELECT 'R' || LPAD(g.n + 1, 3, '0'),
-       ARRAY_CONSTRUCT('Supérette Éco','Prosuma Relais','Station Recyclage')[FLOOR(g.n / 6)] || ' ' || c.NAME,
-       c.NAME,
-       ST_MAKEPOINT(ST_X(c.CENTER) + UNIFORM(-0.01::FLOAT, 0.01::FLOAT, RANDOM()),
-                    ST_Y(c.CENTER) + UNIFORM(-0.01::FLOAT, 0.01::FLOAT, RANDOM()))
-FROM g JOIN COMMUNES c ON c.COMMUNE_ID = MOD(g.n, 6) + 1;
-
--- Historique 30 jours : ménages (petits apports, < Y) -> points ; commerçants (> Y) -> rémunération
-INSERT INTO DECLARATIONS (DECL_ID, USER_ID, MATERIAL, WEIGHT_KG, DECLARED_AT, CHANNEL, AMOUNT_FCFA, POINTS, RELAY_ID, STATUS)
-WITH y AS (SELECT VALUE AS Y FROM CONFIG WHERE KEY = 'WEIGHT_THRESHOLD_Y'),
-     ppk AS (SELECT VALUE AS P FROM CONFIG WHERE KEY = 'POINTS_PER_KG'),
-     raw AS (
-       SELECT u.USER_ID, u.USER_TYPE, u.COMMUNE,
-              ARRAY_CONSTRUCT('CARTON','PLASTIQUE','ALUMINIUM')[UNIFORM(0, 2, RANDOM())]::STRING AS MATERIAL,
-              ROUND(IFF(u.USER_TYPE = 'MENAGE', UNIFORM(0.5::FLOAT, 15::FLOAT, RANDOM()),
-                                                UNIFORM(25::FLOAT, 350::FLOAT, RANDOM())), 1) AS WEIGHT_KG,
-              DATEADD('minute', -UNIFORM(0, 43200, RANDOM()), CURRENT_TIMESTAMP())::TIMESTAMP_NTZ AS TS
-       FROM USERS u, TABLE(GENERATOR(ROWCOUNT => 6))      -- 6 apports par usager en moyenne
-     )
-SELECT UUID_STRING(), r.USER_ID, r.MATERIAL, r.WEIGHT_KG, r.TS,
-       IFF(r.WEIGHT_KG > y.Y, 'REMUNERATION', 'POINTS'),
-       IFF(r.WEIGHT_KG > y.Y, ROUND(r.WEIGHT_KG * p.PRICE_PER_KG, 0), 0),
-       IFF(r.WEIGHT_KG > y.Y, 0, ROUND(r.WEIGHT_KG * ppk.P)),
-       IFF(r.WEIGHT_KG > y.Y, NULL, rl.RID),
-       'COMPLETED'
-FROM raw r CROSS JOIN y CROSS JOIN ppk
-JOIN PRICES p ON p.MATERIAL = r.MATERIAL
-LEFT JOIN (SELECT COMMUNE, MIN(RELAY_ID) AS RID FROM RELAY_POINTS GROUP BY COMMUNE) rl ON rl.COMMUNE = r.COMMUNE;
-
-INSERT INTO PAYMENTS (USER_ID, DECL_ID, AMOUNT_FCFA, TS)
-SELECT USER_ID, DECL_ID, AMOUNT_FCFA, DECLARED_AT FROM DECLARATIONS WHERE CHANNEL = 'REMUNERATION';
-
-UPDATE USERS u SET POINTS_BALANCE = s.PTS
-FROM (SELECT USER_ID, SUM(POINTS) AS PTS FROM DECLARATIONS GROUP BY USER_ID) s
-WHERE u.USER_ID = s.USER_ID;
-
--- 120 signalements historiques (analyse IA simulée, sans photo)
-INSERT INTO REPORTS (REPORT_ID, USER_ID, LOCATION, COMMUNE, PHOTO_PATH, REPORTED_AT, AI_DESCRIPTION, AI_CATEGORY, AI_OBJECTS, AI_MATERIALS, AI_WEIGHT_KG, STATUS)
-WITH g AS (SELECT SEQ4() + 1 AS n, UNIFORM(0, 4, RANDOM()) AS k FROM TABLE(GENERATOR(ROWCOUNT => 120)))
-SELECT UUID_STRING(), 'M' || LPAD(UNIFORM(1, 500, RANDOM()), 4, '0'),
-       ST_MAKEPOINT(ST_X(c.CENTER) + UNIFORM(-0.02::FLOAT, 0.02::FLOAT, RANDOM()),
-                    ST_Y(c.CENTER) + UNIFORM(-0.016::FLOAT, 0.016::FLOAT, RANDOM())),
-       c.NAME, NULL,
-       DATEADD('minute', -UNIFORM(0, 43200, RANDOM()), CURRENT_TIMESTAMP())::TIMESTAMP_NTZ,
-       ARRAY_CONSTRUCT('Tas de sacs plastiques et bouteilles en bord de caniveau',
-                       'Dépôt d''ordures ménagères mélangées près d''un marché',
-                       'Gravats et déchets de chantier sur un terrain vague',
-                       'Cartons et emballages abandonnés derrière des commerces',
-                       'Encombrants (matelas, meubles cassés) sur le trottoir')[g.k],
-       ARRAY_CONSTRUCT('Plastiques','Ordures ménagères','Gravats/BTP','Cartons/Papiers','Encombrants')[g.k],
-       ARRAY_CONSTRUCT(ARRAY_CONSTRUCT('sacs','bouteilles'), ARRAY_CONSTRUCT('restes alimentaires','sacs'),
-                       ARRAY_CONSTRUCT('briques','ciment'), ARRAY_CONSTRUCT('cartons','emballages'),
-                       ARRAY_CONSTRUCT('matelas','chaises'))[g.k],
-       ARRAY_CONSTRUCT(ARRAY_CONSTRUCT('plastique'), ARRAY_CONSTRUCT('organique','plastique'),
-                       ARRAY_CONSTRUCT('minéral'), ARRAY_CONSTRUCT('carton','papier'),
-                       ARRAY_CONSTRUCT('textile','bois','métal'))[g.k],
-       ROUND(UNIFORM(20::FLOAT, 800::FLOAT, RANDOM()), 0),
-       ARRAY_CONSTRUCT('NOUVEAU','ANALYSE','PLANIFIE','TRAITE')[UNIFORM(0, 3, RANDOM())]
-FROM g JOIN COMMUNES c ON c.COMMUNE_ID = MOD(g.n, 6) + 1;
+-- (03_synthetic_data removed — aucune donnée fictive, base vide au démarrage)
 
 -- ------------------------------------------------------------
 -- 04_ai_functions.sql

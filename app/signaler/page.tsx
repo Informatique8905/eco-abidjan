@@ -160,6 +160,10 @@ export default function SignalerPage() {
         lon: lng,
         imageBase64: photoPreview,
         mimeType: photoFile?.type,
+        address: address || `${commune}, Abidjan`,
+        trackingNumber: report.trackingNumber,
+        priority: analysis?.priorite ?? 'moyenne',
+        commune,
       }).catch(() => {}); // silencieux si Snowflake absent
     }
   }

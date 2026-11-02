@@ -43,6 +43,10 @@ export const api = {
     lon: number;
     imageBase64: string;
     mimeType?: string;
+    address?: string;
+    trackingNumber?: string;
+    priority?: string;
+    commune?: string;
   }) {
     return apiFetch<{ reportId: string; path: string; analysis: any }>('/api/reports', {
       method: 'POST',
